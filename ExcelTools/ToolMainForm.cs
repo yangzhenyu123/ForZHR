@@ -29,7 +29,7 @@ namespace ExcelTools
         private void btn_chooseFolder_Click(object sender, EventArgs e)
         {
             excelPathList = new List<string>();
-           
+
             if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
             {
                 txt_folderPath.Text = folderBrowserDialog1.SelectedPath;
@@ -48,7 +48,7 @@ namespace ExcelTools
                     txt_excelList.Text = strb.ToString();
                 }
                 ClearProcessorBar();
-                
+
 
             }
         }
@@ -60,7 +60,11 @@ namespace ExcelTools
 
                 if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
                 {
-                    string resultFilePath = folderBrowserDialog1.SelectedPath.TrimEnd('\\') + "\\合并结果" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
+                    string fileName = "合并结果" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
+                    MessageBox.Show("开始执行，请耐心等待，结果将保存在目标文件夹下，文件名称：" + fileName);
+                    btn_startMerge.Enabled = false;
+
+                    string resultFilePath = folderBrowserDialog1.SelectedPath.TrimEnd('\\') + "\\" + fileName;
 
                     if (excelPathList != null && excelPathList.Count > 0)
                     {
@@ -73,7 +77,7 @@ namespace ExcelTools
                     Application.DoEvents();
                     SetProcessorBarState(true);
                     MessageBox.Show("执行完成");
-
+                    btn_startMerge.Enabled = true;
                 }
                 else
                 {
@@ -82,6 +86,7 @@ namespace ExcelTools
             }
             catch (Exception ex)
             {
+                btn_startMerge.Enabled = true;
                 MessageBox.Show("程序异常，请联系开发者排查");
                 SetProcessorBarState(true);
                 ClearProcessorBar();
