@@ -199,20 +199,29 @@ namespace ExcelTools.Handle
                                         //构建datatable的列
                                         if (isColumnName)
                                         {
-                                            startRow = 1;//如果第一行是列名，则从第二行开始读取
+                                            //startRow = 1;//如果第一行是列名，则从第二行开始读取
+                                            //for (int i = firstRow.FirstCellNum; i < cellCount; ++i)
+                                            //{
+                                            //    Application.DoEvents();
+                                            //    cell = firstRow.GetCell(i);
+                                            //    if (cell != null)
+                                            //    {
+                                            //        if (cell.StringCellValue != null)
+                                            //        {
+                                            //            column = new DataColumn(cell.StringCellValue);
+                                            //            dataTable.Columns.Add(column);
+                                            //        }
+                                            //    }
+                                            //}
+
+                                            //有可能列名称重复，此处也不关注列名，所以就直接列名设置  column+i了
                                             for (int i = firstRow.FirstCellNum; i < cellCount; ++i)
                                             {
                                                 Application.DoEvents();
-                                                cell = firstRow.GetCell(i);
-                                                if (cell != null)
-                                                {
-                                                    if (cell.StringCellValue != null)
-                                                    {
-                                                        column = new DataColumn(cell.StringCellValue);
-                                                        dataTable.Columns.Add(column);
-                                                    }
-                                                }
+                                                column = new DataColumn("column" + (i + 1));
+                                                dataTable.Columns.Add(column);
                                             }
+
                                         }
                                         else
                                         {
