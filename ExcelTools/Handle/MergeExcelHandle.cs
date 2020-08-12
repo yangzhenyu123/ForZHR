@@ -41,7 +41,7 @@ namespace ExcelTools.Handle
             {
                 Application.DoEvents();
                 List<DataTable> tempTables = GetTableListFromExcel(mainForm, item, ref msg);
-                AppendDataToResultTable(resultTable, tempTables);
+                AppendDataToResultTable(resultTable, tempTables, item);
             }
             NPOIHandle.TableToExistExcel(resultTable, resultFilePath);
             return msg.ToString();
@@ -62,12 +62,15 @@ namespace ExcelTools.Handle
         }
 
 
-        private static void AppendDataToResultTable(DataTable resultTable, List<DataTable> tempTables)
+        private static void AppendDataToResultTable(DataTable resultTable, List<DataTable> tempTables, string fileName)
         {
             if (tempTables == null || tempTables.Count <= 0)
             {
                 return;
             }
+
+            string fieldName = fileName.Substring(fileName.LastIndexOf('\\') + 1);
+
             foreach (var tempTable in tempTables)
             {
                 Application.DoEvents();
@@ -97,11 +100,13 @@ namespace ExcelTools.Handle
                         if (rowFlag)
                         {
                             DataRow resultRow = resultTable.NewRow();
+                            resultRow[0] = fieldName + "__" + tempTable.TableName;
+                            resultRow[1] = tempRow[0].ToString() ;
 
                             //将数据添加到resultTable
-                            for (int j = 0; j < columnCount; j++)
+                            for (int j = 1; j < columnCount; j++)
                             {
-                                resultRow[j] = tempRow[j];
+                                resultRow[j + 1] = tempRow[j];
                                 Application.DoEvents();
                             }
                             resultTable.Rows.Add(resultRow);

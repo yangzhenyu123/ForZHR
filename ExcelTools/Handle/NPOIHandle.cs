@@ -1,5 +1,6 @@
 ﻿using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
+using NPOI.SS.Util;
 using NPOI.XSSF.UserModel;
 using System;
 using System.Collections.Generic;
@@ -189,6 +190,8 @@ namespace ExcelTools.Handle
 
                                 if (sheet != null)
                                 {
+                                    dataTable.TableName = sheetName;
+
                                     int rowCount = sheet.LastRowNum;//总行数
                                     if (rowCount > 0)
                                     {
@@ -213,10 +216,10 @@ namespace ExcelTools.Handle
                                             //        }
                                             //    }
                                             //}
-
                                             //有可能列名称重复，此处也不关注列名，所以就直接列名设置  column+i了
                                             for (int i = firstRow.FirstCellNum; i < cellCount; ++i)
                                             {
+
                                                 Application.DoEvents();
                                                 column = new DataColumn("column" + (i + 1));
                                                 dataTable.Columns.Add(column);
@@ -252,24 +255,60 @@ namespace ExcelTools.Handle
                                                 }
                                                 else
                                                 {
-                                                    //CellType(Unknown = -1,Numeric = 0,String = 1,Formula = 2,Blank = 3,Boolean = 4,Error = 5,)
+                                                    //CellType(Unknown = -1, Numeric = 0, String = 1, Formula = 2, Blank = 3, Boolean = 4, Error = 5,)
                                                     switch (cell.CellType)
                                                     {
                                                         case CellType.Blank:
                                                             dataRow[j] = "";
                                                             break;
                                                         case CellType.Numeric:
-                                                            short format = cell.CellStyle.DataFormat;
-                                                            //对时间格式（2015.12.5、2015/12/5、2015-12-5等）的处理
-                                                            if (format == 14 || format == 31 || format == 57 || format == 58)
-                                                                dataRow[j] = cell.DateCellValue;
+                                                            string value = "";
+
+                                                            short formatInt = cell.CellStyle.DataFormat;
+                                                            var format = cell.CellStyle.GetDataFormatString();
+                                                            if (format == null)
+                                                            {
+                                                                format = "";
+                                                            }
+                                                            if ("yyyy/mm;@".Equals(format)
+                                                                || "m/d/yy".Equals(format)
+                                                                || "yy/m/d".Equals(format)
+                                                                || "mm/dd/yy".Equals(format)
+                                                                || "dd-mmm-yy".Equals(format)
+                                                                || "yyyy/m/d".Equals(format)
+                                                                || format.Contains("yy")
+                                                                || formatInt == 14
+                                                                || formatInt == 31
+                                                                || formatInt == 57
+                                                                || formatInt == 58)
+                                                            {
+                                                                DateTime dt = cell.DateCellValue;
+                                                                value = dt.ToString("yyyy/MM/dd");
+                                                            }
                                                             else
-                                                                dataRow[j] = cell.NumericCellValue;
+                                                            {
+                                                                double numvar = cell.NumericCellValue;
+                                                                value = numvar.ToString();
+                                                            }
+                                                            dataRow[j] = value;
+
                                                             break;
+
+                                                        //  short format = cell.CellStyle.DataFormat;
+                                                        //对时间格式（2015.12.5、2015/12/5、2015-12-5等）的处理
+                                                        //if (format == 14 || format == 31 || format == 57 || format == 58)
+                                                        //    dataRow[j] = cell.DateCellValue;
+                                                        //else
+                                                        //    dataRow[j] = cell.NumericCellValue;
+                                                        //break;
                                                         case CellType.String:
                                                             dataRow[j] = cell.StringCellValue;
                                                             break;
+
                                                     }
+
+
+                                                    //dataRow[j] = cell.StringCellValue;
                                                 }
                                             }
                                             dataTable.Rows.Add(dataRow);
